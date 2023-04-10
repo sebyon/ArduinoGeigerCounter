@@ -34,11 +34,14 @@
 
 #define Version "V1.0.0"
 
+// Pin definitions and variables
 const int geigerPin = 2; // Pin number for the Geiger counter
 volatile int count = 0; // Variable to keep track of the count
 unsigned long previousMillis = 0; // Variable to keep track of the previous time
 int cpm = 0; // Variable to keep track of the counts per minute
 float microsieverts = 0.0; // Variable to keep track of the microsieverts per hour
+
+// Uses a rolling weigted average filter with a window of 10 to reduce random background spikes
 const int windowSize = 10;
 float weights[windowSize] = {0.0333, 0.0667, 0.1, 0.1333, 0.1667, 0.2, 0.1667, 0.1333, 0.1, 0.0667}; // Weights for the moving average filter
 float weightedCpm[windowSize]; // Array to store previous CPM values for the moving average filter
@@ -51,6 +54,7 @@ void setup() {
   Serial.begin(9600);
 }
 
+// Interrupt service routine for the Geiger counter
 void loop() {
   unsigned long currentMillis = millis();
 
@@ -74,6 +78,7 @@ void loop() {
     
     microsieverts = weightedAverageCpm / 151.0; // Convert CPM to microsieverts per hour
     
+    // Print results via serial
     Serial.print("CPM: ");
     Serial.print((int)weightedAverageCpm);
     Serial.print(", µSv/H: ");
